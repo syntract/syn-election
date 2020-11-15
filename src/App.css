@@ -129,3 +129,64 @@ body {
   justify-content: center;
   align-items: center;
 }
+
+.login {
+  margin: 100px auto;
+  width: 50%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: baseline;
+}
+
+.login .btn {
+  margin-top: 0;
+}
+
+.login .btn-primary {
+  background-color: darkcyan;
+  border-color: darkcyan;
+}
+
+.login .btn-primary:focus {
+  background-color: darkcyan;
+  border-color: darkcyan;
+}
+
+.login .btn-primary:active {
+  background-color: darkcyan !important;
+  border-color: darkcyan !important;
+}
+
+.login .btn-primary:hover {
+  background-color: #fff;
+  color: darkcyan;
+  border-color: darkcyan;
+}
+
+#getResultsSpanShow{
+  color: red;
+  text-align: center;
+  display: block;
+}
+#getResultsSpan {
+  display: none;
+}
+
+#stopSpanShow{
+  color: red;
+  text-align: center;
+  display: block;
+}
+#stopSpan {
+  display: none;
+}
+
+#restartSpanShow{
+  color: red;
+  text-align: center;
+  display: block;
+}
+#restartSpan {
+  display: none;
+}

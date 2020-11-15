@@ -2,9 +2,11 @@ import React from 'react';
 import VoterView from './VoterView';
 import {Tabs, Tab} from 'react-bootstrap';
 import ManagerView from './ManagerView';
+import Login from './Login';
 
 export default function ViewTabs() {
   const [key, setKey] = React.useState("voter");
+  const [auth, setAuth] = React.useState(false);
 
   return (
     <Tabs
@@ -16,7 +18,7 @@ export default function ViewTabs() {
         <VoterView />
       </Tab>
       <Tab eventKey="manager" title="Manager View">
-        <ManagerView />
+        {auth ? <ManagerView /> : <Login login={setAuth} />}
       </Tab>
     </Tabs>
   );

@@ -22,18 +22,19 @@ export default class VoterView extends React.Component {
   }
 
   async componentDidMount() {
-    const manager = await election.methods.manager().call();
+    const manager = await election.methods.owner().call();
     const proposals = await election.methods.proposals(1).call();
     const proposalNames = await election.methods.getProposals().call();
-    let winner = await election.methods.winnerName().call();
-    // let votingOver = await election.methods.stopVote().call()
-    // console.log(votingOver);
-    console.log(winner);
-    winner = web3.utils.hexToAscii(winner).replace(/\0/g, "");
+    // let winner = await election.methods.winnerName().call();
+    // // let votingOver = await election.methods.stopVote().call()
+    // // console.log(votingOver);
+    console.log(proposalNames);
+    console.log(manager)
+    // winner = web3.utils.hexToAscii(winner).replace(/\0/g, "");
     const stringValues = proposalNames.map((item) =>
       web3.utils.hexToAscii(item).replace(/\0/g, "")
     );
-    this.setState({ manager, proposals, proposalNames, stringValues, winner });
+    this.setState({ manager, proposals, proposalNames, stringValues });
   }
 
   onClickHandle = (i) => {

@@ -13,22 +13,23 @@ export default class ManagerView extends React.Component {
       proposals: [],
       stringValues: [],
       proposalNames: [],
-      winner: null,
+      results: [],
       selection: null,
       loading: false,
       votingOver: null,
+      errorResults: false,
+      errorStop: false,
+      errorRestart: false,
     };
   }
 
   async componentDidMount() {
-    const manager = await election.methods.manager().call();
+    const manager = await election.methods.owner().call();
 
     const proposalNames = await election.methods.getProposals().call();
-    let winner = await election.methods.winnerName().call();
     // let votingOver = await election.methods.stopVote().call()
     // console.log(votingOver);
-    console.log(winner);
-    winner = web3.utils.hexToAscii(winner).replace(/\0/g, "");
+
     const stringValues = proposalNames.map((item) =>
       web3.utils.hexToAscii(item).replace(/\0/g, "")
     );
@@ -51,49 +52,73 @@ export default class ManagerView extends React.Component {
     this.setState({ loading: false });
   };
 
-  giveRightToVote = (address) => {
-    election.methods
-      .giveRightToVote(address)
-      .call()
-      .then((result) => {})
-      .catch((e) => console.log(e));
-  };
-
   stopElection = () => {
+    this.setState({ loading: true });
     election.methods
       .stopElection()
       .call()
-      .then((result) => {})
-      .catch((e) => console.log(e));
+      .then((result) => {
+        this.setState({
+          votingOver: true,
+        });
+      })
+      .catch((error) => {
+        this.setState({
+          loading: false,
+          errorStop: true,
+        });
+      });
   };
 
-  getWinner = () => {
+  restartElection = () => {
+    this.setState({ loadingRestart: true });
     election.methods
-      .winnerName()
+      .debugRestartElection()
       .call()
       .then((result) => {
         this.setState({
-          winner: web3.utils.hexToAscii(result).replace(/\0/g, ""),
+          votingOver: false,
         });
       })
-      .catch((e) => console.log(e));
+      .catch((error) => {
+        this.setState({
+          loadingRestart: false,
+          errorRestart: true,
+        });
+      });
   };
 
-  giveRightToVoteForm = () => (
-    <Form>
-      <FormGroup>
-        <Form.Control
-          type="text"
-          placeholder="Enter voter's address"
-          onChange={(e) => this.setState({ address: e.target.value })}
-        />
+  getResults = () => {
+    this.setState({ loadingResults: true });
+    election.methods
+      .getResults()
+      .call()
+      .then((result) => {
+        this.setState({
+          results: result.map((item) => {
+            item.name = web3.utils.hexToAscii(item.name);
+            item.voteCount = item.voteCount;
+          }),
+          loadingResults: false,
+        });
+      })
+      .catch((error) => {
+        this.setState({
+          loadingResults: false,
+          errorResults: true,
+        });
+      });
+  };
 
+  actionButtons = () => (
+    <Form>
+      <div>
         <Button
           variant="primary"
-          size="md"
-          id="giveAccess"
+          size="lg"
+          id="stopVoting"
           disabled={this.state.votingOver}
-          onClick={this.giveRightToVote}
+          onClick={this.getResults}
         >
           <Spinner
             as="span"
@@ -101,23 +126,46 @@ export default class ManagerView extends React.Component {
             size="sm"
             role="status"
             aria-hidden="true"
-            style={{ display: this.state.loading ? "block" : "none" }}
+            style={{ display: this.state.loadingResults ? "block" : "none" }}
           />
-          Acordati drept de vot
+          Afisare rezultate
         </Button>
-      </FormGroup>
-    </Form>
-  );
-
-  actionButtons = () => (
-    <Form>
-      <FormGroup>
+        <p
+          id={this.state.errorResults ? "getResultsSpanShow" : "getResultsSpan"}
+        >
+          Functie destinata doar managerului!
+        </p>
+      </div>
+      <div>
+        <Button
+          variant="info"
+          size="lg"
+          id="stopVoting"
+          onClick={this.restartElection}
+        >
+          <Spinner
+            as="span"
+            animation="border"
+            size="sm"
+            role="status"
+            aria-hidden="true"
+            style={{ display: this.state.loadingRestart ? "block" : "none" }}
+          />
+          Reporneste votarea
+        </Button>
+        <p
+          id={this.state.errorRestart ? "restartSpanShow" : "restartSpan"}
+        >
+          Functie destinata doar managerului!
+        </p>
+      </div>
+      <div>
         <Button
           variant="danger"
           size="lg"
           id="stopVoting"
           disabled={this.state.votingOver}
-          onClick={this.getWinner}
+          onClick={this.stopElection}
         >
           <Spinner
             as="span"
@@ -129,7 +177,12 @@ export default class ManagerView extends React.Component {
           />
           Incheie votarea
         </Button>
-      </FormGroup>
+        <p
+          id={this.state.errorStop ? "stopSpanShow" : "stopSpan"}
+        >
+          Functie destinata doar managerului!
+        </p>
+      </div>
     </Form>
   );
 
@@ -142,32 +195,33 @@ export default class ManagerView extends React.Component {
           <h4>
             Managerul Contractului: <span>{this.state.manager}</span>
           </h4>
+          <br/>
+          <h1>{`Votare ${this.state.votingOver ? 'incheiata' : 'in desfasurare'}!`}</h1>
         </div>
         <div className="action-content">
-          {this.giveRightToVoteForm()}
           {this.actionButtons()}
           {this.state.winner && (
-              <>
-                <h3 style={{margin: "40px"}}>Votare incheiata</h3>
-            <div className="winner">
-              <Avatar
-                avatarStyle="Circle"
-                topType="Turban"
-                accessoriesType="Blank"
-                hatColor="Default"
-                facialHairType="Blank"
-                clotheType="BlazerShirt"
-                eyeType="Default"
-                eyebrowType="Default"
-                mouthType="Default"
-                skinColor="Default"
-              />
-              <div className="data">
-                <p>{this.state.winner}</p>
-                <br />
-                <span>Candidat Castigator</span>
+            <>
+              <h3 style={{ margin: "40px" }}>Votare incheiata</h3>
+              <div className="winner">
+                <Avatar
+                  avatarStyle="Circle"
+                  topType="Turban"
+                  accessoriesType="Blank"
+                  hatColor="Default"
+                  facialHairType="Blank"
+                  clotheType="BlazerShirt"
+                  eyeType="Default"
+                  eyebrowType="Default"
+                  mouthType="Default"
+                  skinColor="Default"
+                />
+                <div className="data">
+                  <p>{this.state.winner}</p>
+                  <br />
+                  <span>Candidat Castigator</span>
+                </div>
               </div>
-            </div>
             </>
           )}
         </div>
