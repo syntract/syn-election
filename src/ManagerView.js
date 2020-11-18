@@ -52,63 +52,80 @@ export default class ManagerView extends React.Component {
     this.setState({ loading: false });
   };
 
-  stopElection = () => {
+  stopElection = async () => {
     this.setState({ loading: true });
-    election.methods
+    const accounts = await web3.eth.getAccounts();
+    await election.methods
       .stopElection()
-      .call()
-      .then((result) => {
+      .send({ from: accounts[0] })
         this.setState({
           votingOver: true,
         });
-      })
-      .catch((error) => {
-        this.setState({
-          loading: false,
-          errorStop: true,
-        });
-      });
   };
 
-  restartElection = () => {
+  restartElection = async () => {
     this.setState({ loadingRestart: true });
-    election.methods
+    const accounts = await web3.eth.getAccounts();
+    await election.methods
       .debugRestartElection()
-      .call()
-      .then((result) => {
+      .send({ from: accounts[0] })
         this.setState({
           votingOver: false,
         });
-      })
-      .catch((error) => {
-        this.setState({
-          loadingRestart: false,
-          errorRestart: true,
-        });
-      });
   };
 
-  getResults = () => {
+  getResults = async () => {
     this.setState({ loadingResults: true });
-    election.methods
+    const accounts = await web3.eth.getAccounts();
+    const result = await election.methods
       .getResults()
-      .call()
-      .then((result) => {
+      .call({ from: accounts[0] })
+      console.log(result);
         this.setState({
-          results: result.map((item) => {
-            item.name = web3.utils.hexToAscii(item.name);
-            item.voteCount = item.voteCount;
-          }),
+          results: result.map((item) => (
+            {
+              name: web3.utils.hexToAscii(item.name),
+              voteCount: item.voteCount
+            }
+          )),
           loadingResults: false,
         });
-      })
-      .catch((error) => {
-        this.setState({
-          loadingResults: false,
-          errorResults: true,
-        });
-      });
+
   };
+
+  displayOptions = () => {
+    return this.state.results.map((item, i) => (
+      <div
+        className="option"
+        key={i}
+      >
+        <Avatar
+          avatarStyle="Transparent"
+          topType="Turban"
+          accessoriesType="Blank"
+          hatColor="Blue03"
+          facialHairType="Blank"
+          clotheType="BlazerShirt"
+          eyeType="Default"
+          eyebrowType="Default"
+          mouthType="Default"
+          skinColor="Light"
+        />
+        <div className="data">
+          <p>{item.name}</p>
+          <br />
+          <span>Numar voturi: {item.voteCount}</span>
+        </div>
+        {/* <Form.Check
+          type="radio"
+          name="radio"
+          id={String(i)}
+          onClick={(e) => this.onClickHandle(e)}
+        /> */}
+      </div>
+    ));
+  };
+
 
   actionButtons = () => (
     <Form>
@@ -187,6 +204,7 @@ export default class ManagerView extends React.Component {
   );
 
   render() {
+    console.log(this.state);
     return (
       <div className="parent">
         <div className="title">
@@ -200,30 +218,7 @@ export default class ManagerView extends React.Component {
         </div>
         <div className="action-content">
           {this.actionButtons()}
-          {this.state.winner && (
-            <>
-              <h3 style={{ margin: "40px" }}>Votare incheiata</h3>
-              <div className="winner">
-                <Avatar
-                  avatarStyle="Circle"
-                  topType="Turban"
-                  accessoriesType="Blank"
-                  hatColor="Default"
-                  facialHairType="Blank"
-                  clotheType="BlazerShirt"
-                  eyeType="Default"
-                  eyebrowType="Default"
-                  mouthType="Default"
-                  skinColor="Default"
-                />
-                <div className="data">
-                  <p>{this.state.winner}</p>
-                  <br />
-                  <span>Candidat Castigator</span>
-                </div>
-              </div>
-            </>
-          )}
+          {this.state.results && this.displayOptions()}
         </div>
       </div>
     );
