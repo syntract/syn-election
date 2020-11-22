@@ -13,6 +13,8 @@ import VoterView from "./VoterView";
 import {Grid} from '@material-ui/core';
 import voteIcon from './assets/vote2.png';
 import cpanelIcon from './assets/cpanel.png';
+import Bar from "./Bar";
+import Headline from "./Headline";
 
 const modes = [
   {
@@ -29,6 +31,8 @@ const modes = [
 
 const App = () => (
   <Router>
+    <Bar />
+    <Headline />
     <Switch>
       <Route path="/vote">
         <VoterView />
