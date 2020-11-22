@@ -10,6 +10,7 @@ import ModeCard from './ModeCard';
 import ViewTabs from './Tabs';
 import ManagerView from "./ManagerView";
 import VoterView from "./VoterView";
+import Voter from './Voter/Voter';
 import {Grid} from '@material-ui/core';
 import voteIcon from './assets/vote2.png';
 import cpanelIcon from './assets/cpanel.png';
@@ -35,7 +36,7 @@ const App = () => (
     <Headline />
     <Switch>
       <Route path="/vote">
-        <VoterView />
+        <Voter />
       </Route>
       <Route path="/manage">
         <ManagerView />
