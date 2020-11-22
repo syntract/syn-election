@@ -11,6 +11,7 @@ import ViewTabs from './Tabs';
 import ManagerView from "./ManagerView";
 import VoterView from "./VoterView";
 import Voter from './Voter/Voter';
+import Manager from './Manager/Manager';
 import {Grid} from '@material-ui/core';
 import voteIcon from './assets/vote2.png';
 import cpanelIcon from './assets/cpanel.png';
@@ -39,7 +40,7 @@ const App = () => (
         <Voter />
       </Route>
       <Route path="/manage">
-        <ManagerView />
+        <Manager />
       </Route>
       <Route path="/">
         <Landing />
@@ -49,7 +50,7 @@ const App = () => (
 );
 
 const Landing = () => (
-    <div style={{ height: "100vh", display: "flex", justifyContent: "center" }}>
+    <div style={{ marginTop: "50px", display: "flex", justifyContent: "center" }}>
       <Grid
         container
         spacing={8}

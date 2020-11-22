@@ -18,7 +18,7 @@ export default function CandidatesList({cards}) {
     {/* End hero unit */}
     <Grid container spacing={4}>
         {cards && cards.map((card, i) => (
-        <CandidateCard {...card} key={i}/>
+        <CandidateCard card={card} selection={i} key={i}/>
         ))}
     </Grid>
     </Container>

@@ -14,14 +14,14 @@ import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import Link from "@material-ui/core/Link";
 import CandidatesList from './CandidatesList';
+import web3 from "../web3";
+import election from "../election";
 
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
       {"Copyright © "}
-      <Link color="inherit" href="https://material-ui.com/">
-        Your Website
-      </Link>{" "}
+        Aplicatie de votare Blockchain
       {new Date().getFullYear()}
       {"."}
     </Typography>
@@ -55,7 +55,7 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
   },
   footer: {
-    backgroundColor: theme.palette.background.paper,
+    backgroundColor: "#eee",
     padding: theme.spacing(6),
   },
 }));
@@ -65,23 +65,23 @@ const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 export default function Voter() {
   const classes = useStyles();
 
+  const [proposals, setProposals] = React.useState([]);
+  React.useEffect(async () => {
+    const allProposals = await election.methods.getProposals().call()
+    const readableProposals = allProposals.map((item) =>
+      web3.utils.hexToAscii(item).replace(/\0/g, "")
+    );
+    setProposals(readableProposals);
+  }, [])
+
+
+
   return (
     <React.Fragment>
       <CssBaseline />
-        <CandidatesList cards={cards} />
+      <CandidatesList cards={proposals} />
       {/* Footer */}
       <footer className={classes.footer}>
-        <Typography variant="h6" align="center" gutterBottom>
-          Footer
-        </Typography>
-        <Typography
-          variant="subtitle1"
-          align="center"
-          color="textSecondary"
-          component="p"
-        >
-          Something here to give the footer a purpose!
-        </Typography>
         <Copyright />
       </footer>
       {/* End footer */}

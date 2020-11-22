@@ -32,7 +32,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function CandidateCard({card}) {
+export default function CandidateCard({card, selection}) {
 	const classes = useStyles();
 
 	const [open, setOpen] = React.useState(false);
@@ -58,7 +58,7 @@ export default function CandidateCard({card}) {
             </Grid>
             <Grid item xs={8}>
                 <Typography gutterBottom variant="h6" component="p">
-                  Ion Ionescu
+                  {card}
                 </Typography>
             </Grid>
           </Grid>
@@ -69,7 +69,7 @@ export default function CandidateCard({card}) {
           </Button>
         </CardActions>
       </Card>
-			<ConfirmationModal open={open} handleClose={() => setOpen(false)}/>
+			<ConfirmationModal open={open} name={card} selection={selection} handleClose={() => setOpen(false)}/>
     </Grid>
   );
 }

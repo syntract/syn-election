@@ -10,6 +10,15 @@ import CloseIcon from "@material-ui/icons/Close";
 import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
+import web3 from "../web3";
+import election from "../election";
+import Spinner from '../Spinner';
+
+
+const ERROR_MSG = "Votul nu a putut fi inregistrat.";
+const SUCCESS_MSG = "Votul a fost inregistrat cu succes!";
+const LOADING_MSG =
+  "Votul este in curs de inregistrare. Procesul poate dura pana la cateva minute.";
 
 const styles = (theme) => ({
   root: {
@@ -52,10 +61,42 @@ const DialogActions = withStyles((theme) => ({
   root: {
     margin: 0,
     padding: theme.spacing(1),
+    "& .MuiButton-containedPrimary": {
+      backgroundColor: "#1e62af",
+    },
+    "& .MuiButton-textPrimary": {
+      color: "#1e62af",
+    },
   },
 }))(MuiDialogActions);
 
-export default function ConfirmationModal({ open, handleClose }) {
+export default function ConfirmationModal({ open, handleClose, name, selection }) {
+
+     
+    const [loading, setLoading] = React.useState(false);  
+    const [success, setSuccess] = React.useState(false);
+    const [error, setError] = React.useState(false);
+
+const onSubmitHandle = async () => {
+  setLoading(true);
+
+  const accounts = await web3.eth.getAccounts();
+
+  try {
+    const res = await election.methods
+      .vote(selection)
+      .send({ from: accounts[0] });
+    console.log(res);
+    setSuccess(true);
+  } catch (e) {
+    console.log(e);
+    setError(true)
+    console.log("----");
+  } finally {
+    setLoading(false);
+  }
+};
+
   return (
     <Dialog
       onClose={handleClose}
@@ -86,7 +127,7 @@ export default function ConfirmationModal({ open, handleClose }) {
           </Grid>
           <Grid item xs={9}>
             <Typography gutterBottom variant="h6" component="p">
-              Ion Ionescu
+              {name}
             </Typography>
           </Grid>
           <Grid item xs={12}>
@@ -106,7 +147,7 @@ export default function ConfirmationModal({ open, handleClose }) {
         </Button>
         <Button
           autoFocus
-          onClick={handleClose}
+          onClick={onSubmitHandle}
           color="primary"
           variant="contained"
           size="large"
@@ -114,6 +155,13 @@ export default function ConfirmationModal({ open, handleClose }) {
           Votati
         </Button>
       </DialogActions>
+      {loading && <Spinner />}
+      {loading && <span>{LOADING_MSG}</span>}
+      {!loading && (success || error) && (
+        <span className={error ? "error-msg" : "success-msg"}>
+          {error ? ERROR_MSG : SUCCESS_MSG}
+        </span>
+      )}
     </Dialog>
   );
 }
